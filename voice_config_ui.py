@@ -221,13 +221,12 @@ def generate_sample(model, speaker, speed, noise):
         print("[ERROR] Model not found")
         return
 
+
     output = os.path.join(APPDATA_DIR, "sample.wav")
 
-    # Convert UI speed to Piper's length-scale semantics
-    # UI: lower => slower, higher => faster
-    # Piper: length-scale >1 is faster, <1 is slower
-    length_scale = 1.0 / speed if speed > 0 else 1.0
-    
+    # Set Piper length_scale so slider value directly controls speed (lower=faster, higher=slower)
+    length_scale = speed if speed > 0 else 1.0
+
     # Extract speaker ID from format "name (123)" if needed
     speaker_id = None
     if speaker and "(" in speaker:
@@ -240,7 +239,7 @@ def generate_sample(model, speaker, speed, noise):
             speaker_id = int(speaker)
         except:
             speaker_id = None
-    
+
     # Debug logging
     print(f"[VOICE] Testing voice sample")
     print(f"[VOICE] Model: {model}")
@@ -357,7 +356,7 @@ def open_window():
     add_widget(tk.Entry(left_frame, textvariable=speaker_var))
 
     add_label("Speed")
-    add_widget(tk.Scale(left_frame, from_=0.7, to=1.3, resolution=0.01,
+    add_widget(tk.Scale(left_frame, from_=1.5, to=0.5, resolution=0.01,
                         orient="horizontal", variable=speed_var))
 
     add_label("Noise")

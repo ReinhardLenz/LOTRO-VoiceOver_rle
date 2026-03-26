@@ -9,18 +9,18 @@
         "use_speaker_id": true,
         "speaker_id": 519,
         "emotion": {
-          "speed": 0.79,
-          "noise": 0.6
+          "speed": 1.24,
+          "noise": 0.38
         }
       },
       "female": {
         "use_custom_model": true,
         "model_path": "models/en_US-libritts-high.onnx",
         "use_speaker_id": true,
-        "speaker_id": 10,
+        "speaker_id": 766,
         "emotion": {
-          "speed": 1.0,
-          "noise": 0.6
+          "speed": 1.32,
+          "noise": 0.49
         }
       }
     },
@@ -41,8 +41,8 @@
         "use_speaker_id": true,
         "speaker_id": 60,
         "emotion": {
-          "speed": 0.95,
-          "noise": 0.77
+          "speed": 1.3,
+          "noise": 0.55
         }
       }
     },
@@ -51,10 +51,10 @@
         "use_custom_model": true,
         "model_path": "models/en_US-libritts-high.onnx",
         "use_speaker_id": true,
-        "speaker_id": 472,
+        "speaker_id": 736,
         "emotion": {
-          "speed": 1.3,
-          "noise": 0.31
+          "speed": 1.0,
+          "noise": 0.55
         }
       },
       "female": {
@@ -75,7 +75,7 @@
         "use_speaker_id": true,
         "speaker_id": 687,
         "emotion": {
-          "speed": 1.05,
+          "speed": 1.27,
           "noise": 0.6
         }
       },
@@ -98,16 +98,16 @@
         "speaker_id": 358,
         "emotion": {
           "speed": 0.89,
-          "noise": 0.42
+          "noise": 0.35
         }
       },
       "female": {
         "use_custom_model": true,
         "model_path": "models/en_US-libritts-high.onnx",
         "use_speaker_id": true,
-        "speaker_id": 408,
+        "speaker_id": 421,
         "emotion": {
-          "speed": 0.85,
+          "speed": 1.07,
           "noise": 0.41
         }
       }
