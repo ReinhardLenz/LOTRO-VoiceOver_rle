@@ -70,7 +70,7 @@ if not hasattr(globalVariables, "paused"):
     globalVariables.paused = False
 
 # -----------------------------
-# STOP SYSTEM (🔥 IMPORTANT)
+# STOP SYSTEM (IMPORTANT)
 # -----------------------------
 
 def clear_queue():
@@ -104,8 +104,14 @@ def resume():
 # -----------------------------
 
 def normalize_name(name):
-    normalized = unicodedata.normalize("NFD", name)
-    return "".join(c for c in normalized if unicodedata.category(c) != "Mn").lower()
+    name = unicodedata.normalize("NFD", name)
+    name = "".join(c for c in name if unicodedata.category(c) != "Mn")
+    name = name.lower()
+
+    # remove punctuation here too
+    name = re.sub(r'[^a-z0-9 ]', '', name)
+
+    return name.strip()
 
 # -----------------------------
 # NPC GENDER
@@ -141,7 +147,30 @@ def load_npc_gender_files():
     print(f"[NPC] Loaded {len(npc_gender_map)} gender entries")
 
 def get_gender_from_files(name):
-    return npc_gender_map.get(normalize_name(name))
+    if not name:
+        return None
+
+    n = normalize_name(name)
+
+    # 1. Exact match
+    if n in npc_gender_map:
+        return npc_gender_map[n]
+
+    # 2. Clean common junk (VERY IMPORTANT)
+    n_clean = re.sub(r'[^a-z0-9 ]', '', n)
+
+    if n_clean in npc_gender_map:
+        return npc_gender_map[n_clean]
+
+    # 3. Fuzzy match (fallback)
+    from difflib import get_close_matches
+
+    matches = get_close_matches(n_clean, npc_gender_map.keys(), n=1, cutoff=0.85)
+
+    if matches:
+        return npc_gender_map[matches[0]]
+
+    return None
 
 # -----------------------------
 # RACE TREE
@@ -385,10 +414,13 @@ def generate(text, output, npc):
         # NORMAL FLOW
         # -----------------------------
         race = detect_race(npc)
-        gender = get_gender_from_files(npc) or return_npc_gender(npc) or "male"
+        gender = get_gender_from_files(npc)
+
+        if not gender:
+            gender = return_npc_gender(npc) or "male"
 
         model_path, speaker, emotion = get_voice_config(race, gender)
-
+    print(f"[GENDER DEBUG] NPC='{npc}' → gender='{gender}'")
     # -----------------------------
     # SAFETY CHECK
     # -----------------------------

@@ -274,11 +274,6 @@ async def tts_engine(text=None):
         if now - x["time"] <= COOLDOWN_SECONDS
     ]
 
-    for entry in globalVariables.recent_lines:
-        if is_similar(text, entry["text"]):
-            debug("[TTS] Skipping duplicate")
-            return
-
     globalVariables.recent_lines.append({
         "text": text,
         "time": now

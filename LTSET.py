@@ -382,112 +382,59 @@ def check_for_updates():
 # OCR LOOP
 # -----------------------------
 async def monitor_loop_async():
-    print("[MONITOR] HYBRID MODE (continuous OCR + log trigger boost)")
 
+    print("[MONITOR] OCR MAIN MODE (continuous quest window scan, log is fallback boost)")
+
+    # Setup script log reader, but do not block or wait for it
     log_path = os.path.join(
         os.path.expanduser("~"),
         "Documents",
         "The Lord of the Rings Online",
         "Script.log"
     )
-
     reader = ScriptLogReader(log_path)
-
-    # -----------------------------
-    # WAIT FOR FILE (BUT NOT FOREVER)
-    # -----------------------------
-    log_available = False
-    wait_time = 0
-
-    print("[LOG] Checking for Script.log...")
-
-    while wait_time < 5:
-        if os.path.exists(log_path):
-            log_available = True
-            print("[LOG] Script.log detected → trigger enabled")
-            reader.wait_for_file()
-            break
-
-        await asyncio.sleep(1)
-        wait_time += 1
-
-    if not log_available:
-        print("[LOG] Script.log not found → OCR only mode")
-
     last_lines = []
     last_ocr_text = ""
 
     while True:
-
-        # -----------------------------
-        # WAIT FOR SETUP
-        # -----------------------------
+        # Wait for setup
         if not getattr(globalVariables, "env", None):
             await asyncio.sleep(0.2)
             continue
 
         try:
-            # =============================
-            # 🔵 SCRIPT.LOG (OPTIONAL BOOST)
-            # =============================
-            if log_available:
-
+            # --- Script.log fallback/boost (never blocks OCR) ---
+            if os.path.exists(log_path):
                 new_lines = reader.read_new_lines()
-
                 for line in new_lines:
-
                     if not line.strip():
                         continue
-
-                    # avoid duplicate spam
                     if last_lines and line == last_lines[-1]:
                         continue
-
                     print(f"[LOG] Trigger: {line}")
-
                     last_lines.append(line)
                     if len(last_lines) > 50:
                         last_lines.pop(0)
-
-                    # 🔥 optional: wake voice system
                     voices.resume()
 
-            # =============================
-            # 🟡 OCR (ALWAYS RUNS)
-            # =============================
+            # --- OCR detection is always main ---
             if OCRDetectionAndCleanup.ocr_detection_and_cleaup():
-
                 text = globalVariables.text_ocr.strip()
-
-                # skip garbage only
                 if not text or len(text) < 3:
                     await asyncio.sleep(0.05)
                     continue
-
-                # 🔥 smarter duplicate handling
                 if text == last_ocr_text:
-                    # do NOT block speech system — just skip re-speaking
                     await asyncio.sleep(0.05)
                     continue
-
                 print(f"[OCR] {text}")
-
                 last_ocr_text = text
-
                 voices.resume()
-
                 if globalVariables.enable_disable:
-
                     if globalVariables.only_narrate_book_quests and not globalVariables.is_book_quest:
                         pass
                     else:
                         await piperTTSEngine.tts_engine(text)
-
-            # =============================
-            # SPEED (FAST + RESPONSIVE)
-            # =============================
             await asyncio.sleep(0.05)
-
         except Exception as e:
             print("[MONITOR ERROR]", e)
             await asyncio.sleep(1)
